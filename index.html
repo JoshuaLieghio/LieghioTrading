@@ -1,758 +1,386 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abra Card Collection Tracker</title>
-    <style>
-        :root {
-            --color-bg-base: #0f172a;
-            --color-bg-elevated: #020617;
-            --color-bg-surface: #1e293b;
-            --color-bg-muted: #334155;
-            --color-text-primary: #f1f5f9;
-            --color-text-secondary: #cbd5e1;
-            --color-text-muted: #94a3b8;
-            --color-text-accent: #38bdf8;
-            --color-primary: #38bdf8;
-            --color-primary-hover: #0ea5e9;
-            --color-border: rgba(119, 124, 124, 0.3);
-            --color-success: #10b981;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--color-bg-base);
-            color: var(--color-text-primary);
-            padding: 20px;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: var(--color-bg-surface);
-            border-radius: 12px;
-            border: 1px solid var(--color-border);
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: var(--color-primary);
-        }
-
-        .stats {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-
-        .stat-box {
-            background: var(--color-bg-muted);
-            padding: 15px 25px;
-            border-radius: 8px;
-            border: 1px solid var(--color-border);
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--color-primary);
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: var(--color-text-secondary);
-        }
-
-        .controls {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        select, input {
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: 1px solid var(--color-border);
-            background: var(--color-bg-surface);
-            color: var(--color-text-primary);
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        select:focus, input:focus {
-            outline: 2px solid var(--color-primary);
-            outline-offset: 2px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: none;
-            background: var(--color-primary);
-            color: var(--color-bg-base);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn:hover {
-            background: var(--color-primary-hover);
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: var(--color-bg-muted);
-            color: var(--color-text-primary);
-        }
-
-        .auth-section {
-            background: var(--color-bg-surface);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid var(--color-border);
-            margin-bottom: 20px;
-        }
-
-        .auth-status {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #ef4444;
-        }
-
-        .status-indicator.connected {
-            background: var(--color-success);
-        }
-
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
-        .card {
-            background: var(--color-bg-surface);
-            border-radius: 12px;
-            border: 1px solid var(--color-border);
-            padding: 15px;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.2);
-        }
-
-        .card.owned {
-            border-color: var(--color-success);
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
-        }
-
-        .card-image {
-            width: 100%;
-            height: 200px;
-            background: var(--color-bg-muted);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 15px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .placeholder-text {
-            color: var(--color-text-muted);
-            font-size: 0.9rem;
-            text-align: center;
-            padding: 10px;
-        }
-
-        .card-name {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--color-text-primary);
-        }
-
-        .card-set {
-            font-size: 0.9rem;
-            color: var(--color-text-secondary);
-            margin-bottom: 5px;
-        }
-
-        .card-number {
-            font-size: 0.85rem;
-            color: var(--color-text-muted);
-            margin-bottom: 5px;
-        }
-
-        .card-release {
-            font-size: 0.85rem;
-            color: var(--color-text-muted);
-            margin-bottom: 12px;
-        }
-
-        .ownership-control {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background: var(--color-bg-muted);
-            border-radius: 8px;
-            border: 1px solid var(--color-border);
-        }
-
-        .radio-button {
-            width: 24px;
-            height: 24px;
-            border: 2px solid var(--color-border);
-            border-radius: 50%;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .radio-button.checked {
-            border-color: var(--color-success);
-            background: var(--color-success);
-        }
-
-        .radio-button.checked::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 10px;
-            height: 10px;
-            background: white;
-            border-radius: 50%;
-        }
-
-        .ownership-label {
-            font-size: 0.95rem;
-            color: var(--color-text-secondary);
-            user-select: none;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: var(--color-text-secondary);
-        }
-
-        .firebase-config {
-            background: var(--color-bg-elevated);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid var(--color-border);
-            margin-top: 20px;
-        }
-
-        .config-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .config-field {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .config-field label {
-            font-size: 0.9rem;
-            color: var(--color-text-secondary);
-        }
-
-        .config-field input {
-            width: 100%;
-        }
-
-        .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #fca5a5;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-        }
-
-        .success-message {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #6ee7b7;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            .cards-grid {
-                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            }
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Abra Card Tracker (Firestore)</title>
+  <style>
+    :root{
+      --bg:#0b0f17; --panel:#121a2a; --muted:#9db0d0; --text:#eaf0ff;
+      --accent:#7c5cff; --ok:#34d399; --bad:#fb7185; --line:#23314f;
+    }
+    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text); }
+    header{ padding:16px 16px 10px; border-bottom:1px solid var(--line); background:linear-gradient(180deg,#0c1220,#0b0f17); position:sticky; top:0; z-index:10; }
+    h1{ font-size:16px; margin:0 0 10px; letter-spacing:.2px; }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    button{
+      border:1px solid var(--line); background:var(--panel); color:var(--text);
+      padding:10px 12px; border-radius:10px; cursor:pointer;
+    }
+    button.primary{ background:var(--accent); border-color:transparent; }
+    button.ghost{ background:transparent; }
+    button:disabled{ opacity:.5; cursor:not-allowed; }
+    input, select{
+      border:1px solid var(--line); background:var(--panel); color:var(--text);
+      padding:10px 12px; border-radius:10px;
+    }
+    .meta{ color:var(--muted); font-size:12px; }
+    main{ padding:16px; }
+    .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; }
+    .card{
+      border:1px solid var(--line); background:var(--panel); border-radius:14px;
+      overflow:hidden; display:flex; gap:12px; padding:12px;
+    }
+    .thumb{
+      width:84px; height:118px; border-radius:10px; flex:0 0 auto;
+      background:#0a0f1c; border:1px solid #1f2a44; display:flex; align-items:center; justify-content:center;
+      color:var(--muted); font-size:11px; text-align:center; padding:6px;
+    }
+    .info{ min-width:0; flex:1; }
+    .title{ font-weight:650; font-size:13px; margin:0 0 6px; }
+    .sub{ color:var(--muted); font-size:12px; margin:0 0 8px; }
+    .actions{ display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
+    .tick{
+      display:inline-flex; align-items:center; gap:8px; user-select:none; cursor:pointer;
+      font-size:12px; color:var(--muted);
+    }
+    .radio{
+      width:18px; height:18px; border-radius:999px; border:2px solid var(--muted);
+      display:inline-flex; align-items:center; justify-content:center;
+    }
+    .radio::after{
+      content:""; width:10px; height:10px; border-radius:999px; background:transparent;
+      transform:scale(.8);
+    }
+    .tick[data-owned="true"]{ color:var(--text); }
+    .tick[data-owned="true"] .radio{ border-color:var(--ok); }
+    .tick[data-owned="true"] .radio::after{ background:var(--ok); }
+    .pill{ font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--line); color:var(--muted); }
+    .pill.ok{ color:var(--ok); border-color:rgba(52,211,153,.4); }
+    .pill.bad{ color:var(--bad); border-color:rgba(251,113,133,.4); }
+    .divider{ height:1px; background:var(--line); margin:12px 0; }
+    details{ border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:rgba(18,26,42,.6); }
+    summary{ cursor:pointer; color:var(--text); }
+    .formgrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-top:10px; }
+    .hint{ color:var(--muted); font-size:12px; margin:8px 0 0; }
+    .err{ color:var(--bad); font-size:12px; white-space:pre-wrap; }
+  </style>
 </head>
+
 <body>
-    <div class="container">
-        <header>
-            <h1>🔮 Abra Card Collection Tracker</h1>
-            <p style="color: var(--color-text-secondary); margin-top: 10px;">Track every Abra Pokémon card variant</p>
-            <div class="stats">
-                <div class="stat-box">
-                    <div class="stat-value" id="ownedCount">0</div>
-                    <div class="stat-label">Owned</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="totalCount">0</div>
-                    <div class="stat-label">Total Cards</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="percentageCount">0%</div>
-                    <div class="stat-label">Complete</div>
-                </div>
-            </div>
-        </header>
+<header>
+  <h1>Abra Card Tracker</h1>
 
-        <div class="auth-section">
-            <div class="auth-status">
-                <div class="status-indicator" id="statusIndicator"></div>
-                <span id="authStatus">Not connected to Firebase</span>
-                <button class="btn" id="setupBtn" onclick="toggleConfig()">Setup Firebase</button>
-                <button class="btn btn-secondary" id="syncBtn" onclick="syncData()" style="display: none;">Sync Data</button>
-            </div>
-            
-            <div class="firebase-config" id="firebaseConfig" style="display: none;">
-                <h3 style="margin-bottom: 15px;">Firebase Configuration</h3>
-                <p style="color: var(--color-text-secondary); font-size: 0.9rem; margin-bottom: 15px;">
-                    Get these values from your Firebase Console → Project Settings → Your apps → Firebase SDK snippet (Config)
-                </p>
-                <div class="config-grid">
-                    <div class="config-field">
-                        <label>API Key</label>
-                        <input type="text" id="apiKey" placeholder="AIza...">
-                    </div>
-                    <div class="config-field">
-                        <label>Auth Domain</label>
-                        <input type="text" id="authDomain" placeholder="your-app.firebaseapp.com">
-                    </div>
-                    <div class="config-field">
-                        <label>Project ID</label>
-                        <input type="text" id="projectId" placeholder="your-project-id">
-                    </div>
-                    <div class="config-field">
-                        <label>Storage Bucket</label>
-                        <input type="text" id="storageBucket" placeholder="your-app.appspot.com">
-                    </div>
-                    <div class="config-field">
-                        <label>Messaging Sender ID</label>
-                        <input type="text" id="messagingSenderId" placeholder="123456789">
-                    </div>
-                    <div class="config-field">
-                        <label>App ID</label>
-                        <input type="text" id="appId" placeholder="1:123:web:abc">
-                    </div>
-                </div>
-                <div style="margin-top: 20px; display: flex; gap: 10px;">
-                    <button class="btn" onclick="saveFirebaseConfig()">Save & Connect</button>
-                    <button class="btn btn-secondary" onclick="clearFirebaseConfig()">Clear Config</button>
-                </div>
-                <div id="configMessage"></div>
-            </div>
-        </div>
+  <div class="row">
+    <button id="btnGoogle" class="primary">Sign in with Google</button>
+    <button id="btnApple">Sign in with Apple</button>
+    <button id="btnLogout" class="ghost" disabled>Sign out</button>
 
-        <div class="controls">
-            <select id="sortOrder" onchange="sortCards()">
-                <option value="release">Sort by Release Date</option>
-                <option value="name">Sort by Name</option>
-                <option value="set">Sort by Set</option>
-            </select>
-            
-            <select id="filterOwned" onchange="filterCards()">
-                <option value="all">Show All</option>
-                <option value="owned">Owned Only</option>
-                <option value="needed">Needed Only</option>
-            </select>
+    <span id="authPill" class="pill bad">Signed out</span>
+    <span id="stats" class="pill">Owned: 0 / 0</span>
+  </div>
 
-            <input type="text" id="searchInput" placeholder="Search cards..." oninput="filterCards()">
-        </div>
+  <div class="divider"></div>
 
-        <div class="loading" id="loading">Loading cards...</div>
-        <div class="cards-grid" id="cardsGrid"></div>
+  <div class="row">
+    <input id="q" placeholder="Search (set, variant, number…)" style="min-width:240px; flex:1;" />
+    <select id="sort">
+      <option value="dateAsc">Release date ↑</option>
+      <option value="dateDesc">Release date ↓</option>
+      <option value="setAsc">Set A→Z</option>
+      <option value="nameAsc">Name A→Z</option>
+    </select>
+    <select id="filterOwned">
+      <option value="all">All</option>
+      <option value="owned">Owned</option>
+      <option value="needed">Needed</option>
+    </select>
+    <span class="meta">Cards load from Firestore.</span>
+  </div>
+
+  <div class="divider"></div>
+
+  <details id="adminPanel">
+    <summary>Admin: add a card (requires admin claim)</summary>
+    <div class="formgrid">
+      <input id="f_id" placeholder="cardId (unique, e.g. sv151-063)" />
+      <input id="f_name" placeholder="name (Abra)" />
+      <input id="f_set" placeholder="set (e.g. Base Set)" />
+      <input id="f_number" placeholder="number (e.g. 43/102)" />
+      <input id="f_variant" placeholder="variant (e.g. 1st Ed)" />
+      <input id="f_release" placeholder="releaseDate (YYYY-MM-DD)" />
+      <input id="f_img" placeholder="imageUrl (optional)" />
     </div>
+    <div class="row" style="margin-top:10px;">
+      <button id="btnAddCard">Add / Update card</button>
+      <button id="btnSeed">Seed starter Abra cards</button>
+      <span class="meta">Seeding is safe to run multiple times.</span>
+    </div>
+    <p class="hint">Tip: lock down /cards writes to admins using Security Rules + custom claims. [web:79]</p>
+    <div id="adminErr" class="err"></div>
+  </details>
+</header>
 
-    <script type="module">
-        const abraCards = [
-            { id: 'base-43', name: 'Abra', set: 'Base Set', number: '43/102', release: '1999-01-09', imageUrl: 'https://images.pokemontcg.io/base1/43.png' },
-            { id: 'base-43-shadowless', name: 'Abra (Shadowless)', set: 'Base Set Shadowless', number: '43/102', release: '1999-01-09', imageUrl: 'https://images.pokemontcg.io/base1/43.png' },
-            { id: 'base-43-1st', name: 'Abra (1st Edition)', set: 'Base Set 1st Edition', number: '43/102', release: '1999-01-09', imageUrl: 'https://images.pokemontcg.io/base1/43.png' },
-            { id: 'base2-43', name: 'Abra', set: 'Base Set 2', number: '43/130', release: '2000-02-24', imageUrl: 'https://images.pokemontcg.io/base2/43.png' },
-            { id: 'legendary-63', name: 'Abra', set: 'Legendary Collection', number: '63/110', release: '2002-05-24', imageUrl: 'https://images.pokemontcg.io/base1/43.png' },
-            { id: 'rocket-49', name: 'Abra', set: 'Team Rocket', number: '49/82', release: '2000-04-24', imageUrl: 'https://images.pokemontcg.io/base1/43.png' },
-            { id: 'gym-heroes-91', name: "Sabrina's Abra", set: 'Gym Heroes', number: '91/132', release: '2000-08-14', imageUrl: 'https://images.pokemontcg.io/base1/43.png' },
-            { id: 'gym-challenge-93', name: "Sabrina's Abra", set: 'Gym Challenge', number: '93/132', release: '2000-10-16', imageUrl: 'https://images.pokemontcg.io/base1/43.png' },
-            { id: 'gym-challenge-94', name: "Sabrina's Abra", set: 'Gym Challenge', number: '94/132', release: '2000-10-16', imageUrl: 'https://images.pokemontcg.io/base1/43.png' },
-            { id: 'wizards-promo-19', name: "Sabrina's Abra", set: 'Wizards Black Star Promos', number: '19', release: '2000-11-01', imageUrl: 'https://images.pokemontcg.io/base1/43.png' },
-            { id: 'vending-s1', name: 'Abra', set: 'Vending Machine Set 1', number: 'N/A', release: '1999-06-01', imageUrl: 'https://images.pokemontcg.io/base1/43.png' },
-            { id: 'expedition-93', name: 'Abra', set: 'Expedition', number: '93/165', release: '2002-09-15', imageUrl: 'https://images.pokemontcg.io/ex1/93.png' },
-            { id: 'skyridge-46', name: 'Abra', set: 'Skyridge', number: '46/144', release: '2003-05-12', imageUrl: 'https://images.pokemontcg.io/sk/46.png' },
-            { id: 'mcdonald-13', name: 'Abra', set: 'McDonalds Collection 2002', number: '13/18', release: '2002-07-01', imageUrl: 'https://images.pokemontcg.io/base1/43.png' },
-            { id: 'mysterious-69', name: 'Abra', set: 'Mysterious Treasures', number: '69/123', release: '2007-08-01', imageUrl: 'https://images.pokemontcg.io/mt/69.png' },
-            { id: '151-63', name: 'Abra', set: '151', number: '63/165', release: '2023-09-22', imageUrl: 'https://images.pokemontcg.io/sv3pt5/63.png' },
-            { id: '151-63-holo', name: 'Abra (Cosmos Holo)', set: '151', number: '63/165', release: '2023-09-22', imageUrl: 'https://images.pokemontcg.io/sv3pt5/63.png' },
-            { id: 'paldean-148', name: 'Abra', set: 'Paldean Fates', number: '148/91', release: '2024-01-26', imageUrl: 'https://images.pokemontcg.io/sv4pt5/148.png' },
-            { id: 'twilight-80', name: 'Abra', set: 'Twilight Masquerade', number: '80/167', release: '2024-05-24', imageUrl: 'https://images.pokemontcg.io/sv6/80.png' },
-            { id: 'mega-54', name: 'Abra', set: 'Mega Evolution', number: '54/132', release: '2025-09-26', imageUrl: 'https://images.pokemontcg.io/base1/43.png' },
-            { id: 'topps-63', name: 'Abra #63', set: 'Topps TV Animation', number: '63', release: '1999-07-01', imageUrl: 'https://images.pokemontcg.io/base1/43.png' },
-            { id: 'topps-ep21', name: 'Abra and the Psychic Showdown', set: 'Topps TV Animation Episodes', number: 'EP21', release: '2000-01-01', imageUrl: 'https://images.pokemontcg.io/base1/43.png' },
-        ];
+<main>
+  <div id="loadState" class="meta">Loading…</div>
+  <div class="divider"></div>
+  <div id="grid" class="grid"></div>
+</main>
 
-        let allCards = [];
-        let ownedCards = new Set();
-        let firebaseInitialized = false;
-        let db = null;
-        let auth = null;
-        let currentUser = null;
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import {
+    getAuth, onAuthStateChanged, signInWithPopup,
+    GoogleAuthProvider, OAuthProvider, signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import {
+    getFirestore,
+    collection, doc, setDoc,
+    onSnapshot, query, orderBy
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-        function initializeApp() {
-            allCards = [...abraCards];
-            loadOwnedCards();
-            renderCards();
-            updateStats();
-            checkFirebaseConfig();
-        }
+  const firebaseConfig = {
+    apiKey: "AIzaSyDjtVO0yloDlqmSQhNeaI1sHt0XCe0gYPQ",
+    authDomain: "abra-collection-c63e6.firebaseapp.com",
+    projectId: "abra-collection-c63e6",
+    storageBucket: "abra-collection-c63e6.firebasestorage.app",
+    messagingSenderId: "205587224372",
+    appId: "1:205587224372:web:768e8689136fe246b4b761"
+  };
 
-        function loadOwnedCards() {
-            const saved = JSON.parse(localStorage.getItem('abraCardsOwned') || '[]');
-            ownedCards = new Set(saved);
-        }
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-        function saveOwnedCards() {
-            localStorage.setItem('abraCardsOwned', JSON.stringify([...ownedCards]));
-            updateStats();
-            
-            if (firebaseInitialized && currentUser) {
-                syncToFirebase();
-            }
-        }
+  const elGrid = document.querySelector("#grid");
+  const elQ = document.querySelector("#q");
+  const elSort = document.querySelector("#sort");
+  const elFilterOwned = document.querySelector("#filterOwned");
+  const elStats = document.querySelector("#stats");
+  const elAuthPill = document.querySelector("#authPill");
+  const elLoadState = document.querySelector("#loadState");
+  const adminPanel = document.querySelector("#adminPanel");
+  const adminErr = document.querySelector("#adminErr");
 
-        function toggleOwnership(cardId) {
-            if (ownedCards.has(cardId)) {
-                ownedCards.delete(cardId);
-            } else {
-                ownedCards.add(cardId);
-            }
-            saveOwnedCards();
-            renderCards();
-        }
+  const btnGoogle = document.querySelector("#btnGoogle");
+  const btnApple = document.querySelector("#btnApple");
+  const btnLogout = document.querySelector("#btnLogout");
 
-        function renderCards() {
-            const grid = document.getElementById('cardsGrid');
-            const loading = document.getElementById('loading');
-            
-            loading.style.display = 'none';
-            grid.innerHTML = '';
-            
-            const filteredCards = getFilteredCards();
-            
-            filteredCards.forEach(card => {
-                const isOwned = ownedCards.has(card.id);
-                const cardEl = document.createElement('div');
-                cardEl.className = `card ${isOwned ? 'owned' : ''}`;
-                
-                cardEl.innerHTML = `
-                    <div class="card-image">
-                        <img src="${card.imageUrl}" alt="${card.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <div class="placeholder-text" style="display: none;">
-                            <p>🔮 ${card.name}</p>
-                        </div>
-                    </div>
-                    <div class="card-name">${card.name}</div>
-                    <div class="card-set">${card.set}</div>
-                    <div class="card-number">Card #${card.number}</div>
-                    <div class="card-release">Released: ${formatDate(card.release)}</div>
-                    <div class="ownership-control" onclick="toggleOwnership('${card.id}')">
-                        <div class="radio-button ${isOwned ? 'checked' : ''}"></div>
-                        <span class="ownership-label">${isOwned ? 'Owned ✓' : 'Mark as Owned'}</span>
-                    </div>
-                `;
-                
-                grid.appendChild(cardEl);
-            });
-        }
+  const btnAddCard = document.querySelector("#btnAddCard");
+  const btnSeed = document.querySelector("#btnSeed");
 
-        function formatDate(dateStr) {
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-        }
+  const f_id = document.querySelector("#f_id");
+  const f_name = document.querySelector("#f_name");
+  const f_set = document.querySelector("#f_set");
+  const f_number = document.querySelector("#f_number");
+  const f_variant = document.querySelector("#f_variant");
+  const f_release = document.querySelector("#f_release");
+  const f_img = document.querySelector("#f_img");
 
-        function sortCards() {
-            const sortOrder = document.getElementById('sortOrder').value;
-            
-            allCards.sort((a, b) => {
-                switch(sortOrder) {
-                    case 'release':
-                        return new Date(a.release) - new Date(b.release);
-                    case 'name':
-                        return a.name.localeCompare(b.name);
-                    case 'set':
-                        return a.set.localeCompare(b.set);
-                    default:
-                        return 0;
-                }
-            });
-            
-            renderCards();
-        }
+  let currentUser = null;
+  let ownedMap = {};
+  let cards = []; // loaded from Firestore
 
-        function filterCards() {
-            renderCards();
-        }
+  let unsubOwned = null;
+  let unsubCards = null;
 
-        function getFilteredCards() {
-            const filterOwned = document.getElementById('filterOwned').value;
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            
-            return allCards.filter(card => {
-                const matchesSearch = card.name.toLowerCase().includes(searchTerm) || 
-                                    card.set.toLowerCase().includes(searchTerm) ||
-                                    card.number.toLowerCase().includes(searchTerm);
-                
-                const matchesFilter = filterOwned === 'all' ? true :
-                                    filterOwned === 'owned' ? ownedCards.has(card.id) :
-                                    !ownedCards.has(card.id);
-                
-                return matchesSearch && matchesFilter;
-            });
-        }
+  btnGoogle.addEventListener("click", async () => {
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+  });
 
-        function updateStats() {
-            const owned = ownedCards.size;
-            const total = allCards.length;
-            const percentage = total > 0 ? Math.round((owned / total) * 100) : 0;
-            
-            document.getElementById('ownedCount').textContent = owned;
-            document.getElementById('totalCount').textContent = total;
-            document.getElementById('percentageCount').textContent = percentage + '%';
-        }
+  btnApple.addEventListener("click", async () => {
+    const provider = new OAuthProvider("apple.com");
+    await signInWithPopup(auth, provider);
+  });
 
-        function toggleConfig() {
-            const config = document.getElementById('firebaseConfig');
-            config.style.display = config.style.display === 'none' ? 'block' : 'none';
-        }
+  btnLogout.addEventListener("click", async () => {
+    await signOut(auth);
+  });
 
-        function checkFirebaseConfig() {
-            const config = JSON.parse(localStorage.getItem('firebaseConfig') || '{}');
-            if (config.apiKey) {
-                loadFirebaseConfig(config);
-            }
-        }
+  function setAuthUi(signedIn) {
+    btnLogout.disabled = !signedIn;
+    btnGoogle.disabled = signedIn;
+    btnApple.disabled = signedIn;
 
-        function saveFirebaseConfig() {
-            const config = {
-                apiKey: document.getElementById('apiKey').value,
-                authDomain: document.getElementById('authDomain').value,
-                projectId: document.getElementById('projectId').value,
-                storageBucket: document.getElementById('storageBucket').value,
-                messagingSenderId: document.getElementById('messagingSenderId').value,
-                appId: document.getElementById('appId').value
-            };
+    elAuthPill.textContent = signedIn ? "Signed in" : "Signed out";
+    elAuthPill.classList.toggle("ok", signedIn);
+    elAuthPill.classList.toggle("bad", !signedIn);
+  }
 
-            if (!config.apiKey || !config.authDomain || !config.projectId) {
-                showConfigMessage('Please fill in at least API Key, Auth Domain, and Project ID', 'error');
-                return;
-            }
+  function startCardsListener() {
+    if (unsubCards) unsubCards();
 
-            localStorage.setItem('firebaseConfig', JSON.stringify(config));
-            showConfigMessage('Configuration saved! Loading Firebase...', 'success');
-            
-            setTimeout(() => {
-                loadFirebaseConfig(config);
-            }, 1000);
-        }
+    // Order by releaseDate in Firestore query [web:74]
+    const qCards = query(collection(db, "cards"), orderBy("releaseDate", "asc"));
 
-        function clearFirebaseConfig() {
-            localStorage.removeItem('firebaseConfig');
-            document.getElementById('apiKey').value = '';
-            document.getElementById('authDomain').value = '';
-            document.getElementById('projectId').value = '';
-            document.getElementById('storageBucket').value = '';
-            document.getElementById('messagingSenderId').value = '';
-            document.getElementById('appId').value = '';
-            firebaseInitialized = false;
-            updateAuthStatus('Not connected', false);
-            showConfigMessage('Configuration cleared', 'success');
-        }
+    unsubCards = onSnapshot(qCards, (snap) => {
+      cards = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      elLoadState.textContent = `Loaded ${cards.length} cards`;
+      render();
+    }, (err) => {
+      elLoadState.textContent = "Failed to load cards (check rules + indexes).";
+      console.error(err);
+    });
+  }
 
-        function loadFirebaseConfig(config) {
-            loadFirebaseSDK(config);
-        }
+  function startOwnedListener(uid) {
+    if (unsubOwned) unsubOwned();
+    const ref = doc(db, "users", uid, "state", "owned");
 
-        function loadFirebaseSDK(config) {
-            if (window.firebase) {
-                initializeFirebase(config);
-                return;
-            }
+    unsubOwned = onSnapshot(ref, (snap) => {
+      const data = snap.exists() ? snap.data() : {};
+      ownedMap = (data && data.owned) ? data.owned : {};
+      render();
+    });
+  }
 
-            const script1 = document.createElement('script');
-            script1.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js';
-            
-            const script2 = document.createElement('script');
-            script2.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js';
-            
-            const script3 = document.createElement('script');
-            script3.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js';
+  async function setOwned(cardId, owned) {
+    if (!currentUser) return;
+    const ref = doc(db, "users", currentUser.uid, "state", "owned");
+    const next = { ...ownedMap, [cardId]: !!owned };
+    // setDoc merge used for updating documents [web:68]
+    await setDoc(ref, { owned: next }, { merge: true });
+  }
 
-            script1.onload = () => {
-                document.head.appendChild(script2);
-            };
+  function computeVisibleCards() {
+    const q = elQ.value.trim().toLowerCase();
+    let list = cards.slice();
 
-            script2.onload = () => {
-                document.head.appendChild(script3);
-            };
+    if (q) {
+      list = list.filter(c => {
+        const hay = `${c.name||""} ${c.set||""} ${c.number||""} ${c.variant||""}`.toLowerCase();
+        return hay.includes(q);
+      });
+    }
 
-            script3.onload = () => {
-                initializeFirebase(config);
-            };
+    const ownedFilter = elFilterOwned.value;
+    if (ownedFilter === "owned") list = list.filter(c => !!ownedMap[c.id]);
+    if (ownedFilter === "needed") list = list.filter(c => !ownedMap[c.id]);
 
-            script1.onerror = () => {
-                showConfigMessage('Failed to load Firebase SDK', 'error');
-            };
+    const sort = elSort.value;
+    list.sort((a,b) => {
+      const ad = (a.releaseDate || "");
+      const bd = (b.releaseDate || "");
+      if (sort === "dateAsc") return ad.localeCompare(bd) || (a.set||"").localeCompare(b.set||"");
+      if (sort === "dateDesc") return bd.localeCompare(ad) || (a.set||"").localeCompare(b.set||"");
+      if (sort === "setAsc") return (a.set||"").localeCompare(b.set||"") || (a.number||"").localeCompare(b.number||"");
+      if (sort === "nameAsc") return (a.name||"").localeCompare(b.name||"") || (a.set||"").localeCompare(b.set||"");
+      return 0;
+    });
 
-            document.head.appendChild(script1);
-        }
+    return list;
+  }
 
-        function initializeFirebase(config) {
-            try {
-                if (!firebase.apps.length) {
-                    firebase.initializeApp(config);
-                }
-                
-                auth = firebase.auth();
-                db = firebase.firestore();
-                
-                auth.signInAnonymously().then((userCredential) => {
-                    currentUser = userCredential.user;
-                    firebaseInitialized = true;
-                    updateAuthStatus('Connected to Firebase', true);
-                    document.getElementById('syncBtn').style.display = 'inline-block';
-                    showConfigMessage('Successfully connected to Firebase!', 'success');
-                    
-                    loadFromFirebase();
-                }).catch((error) => {
-                    showConfigMessage('Firebase authentication error: ' + error.message, 'error');
-                });
+  function updateStats() {
+    const total = cards.length;
+    const owned = cards.reduce((n,c) => n + (ownedMap[c.id] ? 1 : 0), 0);
+    elStats.textContent = `Owned: ${owned} / ${total}`;
+  }
 
-            } catch (error) {
-                showConfigMessage('Firebase initialization error: ' + error.message, 'error');
-            }
-        }
+  function cardThumb(card){
+    if (card.imageUrl) {
+      const safe = String(card.imageUrl).replaceAll('"','&quot;');
+      return `<img src="${safe}" alt="${card.name||"Card"}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" />`;
+    }
+    return `<div>${card.set||"Unknown set"}<br/>${card.number||""}</div>`;
+  }
 
-        function syncToFirebase() {
-            if (!firebaseInitialized || !currentUser) return;
+  function render() {
+    updateStats();
+    const visible = computeVisibleCards();
 
-            db.collection('collections').doc(currentUser.uid).set({
-                ownedCards: [...ownedCards],
-                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                showConfigMessage('Data synced to Firebase successfully!', 'success');
-                setTimeout(() => {
-                    document.getElementById('configMessage').innerHTML = '';
-                }, 3000);
-            }).catch((error) => {
-                showConfigMessage('Sync error: ' + error.message, 'error');
-            });
-        }
+    elGrid.innerHTML = visible.map(card => {
+      const isOwned = !!ownedMap[card.id];
+      return `
+        <div class="card" data-id="${card.id}">
+          <div class="thumb">${cardThumb(card)}</div>
+          <div class="info">
+            <p class="title">${card.name || card.id} <span class="meta">(${card.variant || "Variant"})</span></p>
+            <p class="sub">${card.set || "Unknown set"} • ${card.number || ""} • ${card.releaseDate || ""}</p>
+            <div class="actions">
+              <label class="tick" data-owned="${isOwned}" title="Toggle owned">
+                <span class="radio" aria-hidden="true"></span>
+                <span>${isOwned ? "Owned" : "Not owned"}</span>
+              </label>
+              <span class="meta">${currentUser ? "Synced" : "Sign in to sync"}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
 
-        function loadFromFirebase() {
-            if (!firebaseInitialized || !currentUser) return;
+    elGrid.querySelectorAll(".card").forEach(node => {
+      const cardId = node.getAttribute("data-id");
+      node.querySelector(".tick").addEventListener("click", async () => {
+        if (!currentUser) { alert("Please sign in to save owned status."); return; }
+        await setOwned(cardId, !ownedMap[cardId]);
+      });
+    });
+  }
 
-            db.collection('collections').doc(currentUser.uid).get().then((doc) => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    ownedCards = new Set(data.ownedCards || []);
-                    saveOwnedCards();
-                    renderCards();
-                    showConfigMessage('Data loaded from Firebase!', 'success');
-                }
-            }).catch((error) => {
-                console.error('Load error:', error);
-            });
-        }
+  elQ.addEventListener("input", render);
+  elSort.addEventListener("change", render);
+  elFilterOwned.addEventListener("change", render);
 
-        function syncData() {
-            if (firebaseInitialized && currentUser) {
-                syncToFirebase();
-            }
-        }
+  // Admin helpers (writes to /cards; your rules should restrict this to admins) [web:79]
+  async function upsertCard(cardId, data) {
+    adminErr.textContent = "";
+    const ref = doc(db, "cards", cardId);
+    await setDoc(ref, data, { merge: true }); // set/update doc [web:68]
+  }
 
-        function updateAuthStatus(message, connected) {
-            document.getElementById('authStatus').textContent = message;
-            const indicator = document.getElementById('statusIndicator');
-            if (connected) {
-                indicator.classList.add('connected');
-            } else {
-                indicator.classList.remove('connected');
-            }
-        }
+  btnAddCard.addEventListener("click", async () => {
+    try{
+      const id = f_id.value.trim();
+      if (!id) throw new Error("cardId is required");
+      await upsertCard(id, {
+        name: f_name.value.trim() || "Abra",
+        set: f_set.value.trim(),
+        number: f_number.value.trim(),
+        variant: f_variant.value.trim(),
+        releaseDate: f_release.value.trim(),
+        imageUrl: f_img.value.trim()
+      });
+    } catch(e){
+      adminErr.textContent = String(e?.message || e);
+    }
+  });
 
-        function showConfigMessage(message, type) {
-            const messageEl = document.getElementById('configMessage');
-            messageEl.className = type === 'error' ? 'error-message' : 'success-message';
-            messageEl.textContent = message;
-        }
+  btnSeed.addEventListener("click", async () => {
+    try{
+      const seed = [
+        { id:"base-43-unlimited", name:"Abra", set:"Base Set", number:"43/102", releaseDate:"1999-01-09", variant:"Unlimited", imageUrl:"" },
+        { id:"base-43-shadowless", name:"Abra", set:"Base Set", number:"43/102", releaseDate:"1999-01-09", variant:"Shadowless", imageUrl:"" },
+        { id:"base-43-1sted", name:"Abra", set:"Base Set", number:"43/102", releaseDate:"1999-01-09", variant:"1st Edition", imageUrl:"" },
+        { id:"teamrocket-49", name:"Abra", set:"Team Rocket", number:"49/82", releaseDate:"2000-04-24", variant:"Unlimited", imageUrl:"" },
+        { id:"mcd-2011-4", name:"Abra", set:"McDonald's Collection 2011", number:"4/12", releaseDate:"2011-06-17", variant:"Promo", imageUrl:"" },
+        { id:"sv3pt5-151-063", name:"Abra", set:"Scarlet & Violet—151", number:"063/165", releaseDate:"2023-09-22", variant:"Regular", imageUrl:"" },
+        { id:"topps-tv-63", name:"Abra", set:"Topps TV Animation Edition", number:"#63", releaseDate:"1999-01-01", variant:"Topps", imageUrl:"" }
+      ];
+      for (const c of seed) {
+        await upsertCard(c.id, c);
+      }
+    } catch(e){
+      adminErr.textContent = String(e?.message || e);
+    }
+  });
 
-        window.toggleOwnership = toggleOwnership;
-        window.toggleConfig = toggleConfig;
-        window.saveFirebaseConfig = saveFirebaseConfig;
-        window.clearFirebaseConfig = clearFirebaseConfig;
-        window.syncData = syncData;
-        window.sortCards = sortCards;
-        window.filterCards = filterCards;
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user || null;
+    setAuthUi(!!currentUser);
 
-        initializeApp();
-    </script>
+    if (unsubOwned) { unsubOwned(); unsubOwned = null; }
+    if (currentUser) startOwnedListener(currentUser.uid);
+    else ownedMap = {};
+
+    render();
+  });
+
+  // Start catalog listener immediately (public read).
+  startCardsListener();
+
+  render();
+</script>
 </body>
 </html>
