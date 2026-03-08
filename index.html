@@ -1,386 +1,555 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Abra Card Tracker (Firestore)</title>
-  <style>
-    :root{
-      --bg:#0b0f17; --panel:#121a2a; --muted:#9db0d0; --text:#eaf0ff;
-      --accent:#7c5cff; --ok:#34d399; --bad:#fb7185; --line:#23314f;
-    }
-    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text); }
-    header{ padding:16px 16px 10px; border-bottom:1px solid var(--line); background:linear-gradient(180deg,#0c1220,#0b0f17); position:sticky; top:0; z-index:10; }
-    h1{ font-size:16px; margin:0 0 10px; letter-spacing:.2px; }
-    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    button{
-      border:1px solid var(--line); background:var(--panel); color:var(--text);
-      padding:10px 12px; border-radius:10px; cursor:pointer;
-    }
-    button.primary{ background:var(--accent); border-color:transparent; }
-    button.ghost{ background:transparent; }
-    button:disabled{ opacity:.5; cursor:not-allowed; }
-    input, select{
-      border:1px solid var(--line); background:var(--panel); color:var(--text);
-      padding:10px 12px; border-radius:10px;
-    }
-    .meta{ color:var(--muted); font-size:12px; }
-    main{ padding:16px; }
-    .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; }
-    .card{
-      border:1px solid var(--line); background:var(--panel); border-radius:14px;
-      overflow:hidden; display:flex; gap:12px; padding:12px;
-    }
-    .thumb{
-      width:84px; height:118px; border-radius:10px; flex:0 0 auto;
-      background:#0a0f1c; border:1px solid #1f2a44; display:flex; align-items:center; justify-content:center;
-      color:var(--muted); font-size:11px; text-align:center; padding:6px;
-    }
-    .info{ min-width:0; flex:1; }
-    .title{ font-weight:650; font-size:13px; margin:0 0 6px; }
-    .sub{ color:var(--muted); font-size:12px; margin:0 0 8px; }
-    .actions{ display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
-    .tick{
-      display:inline-flex; align-items:center; gap:8px; user-select:none; cursor:pointer;
-      font-size:12px; color:var(--muted);
-    }
-    .radio{
-      width:18px; height:18px; border-radius:999px; border:2px solid var(--muted);
-      display:inline-flex; align-items:center; justify-content:center;
-    }
-    .radio::after{
-      content:""; width:10px; height:10px; border-radius:999px; background:transparent;
-      transform:scale(.8);
-    }
-    .tick[data-owned="true"]{ color:var(--text); }
-    .tick[data-owned="true"] .radio{ border-color:var(--ok); }
-    .tick[data-owned="true"] .radio::after{ background:var(--ok); }
-    .pill{ font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--line); color:var(--muted); }
-    .pill.ok{ color:var(--ok); border-color:rgba(52,211,153,.4); }
-    .pill.bad{ color:var(--bad); border-color:rgba(251,113,133,.4); }
-    .divider{ height:1px; background:var(--line); margin:12px 0; }
-    details{ border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:rgba(18,26,42,.6); }
-    summary{ cursor:pointer; color:var(--text); }
-    .formgrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-top:10px; }
-    .hint{ color:var(--muted); font-size:12px; margin:8px 0 0; }
-    .err{ color:var(--bad); font-size:12px; white-space:pre-wrap; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Print Portfolio</title>
+    <style>
+        :root {
+            --color-bg-base: #0f172a;
+            --color-bg-elevated: #020617;
+            --color-bg-surface: #1e293b;
+            --color-bg-muted: #334155;
+            --color-text-primary: #f1f5f9;
+            --color-text-secondary: #cbd5e1;
+            --color-text-muted: #94a3b8;
+            --color-text-accent: #38bdf8;
+            --color-primary: #38bdf8;
+            --color-primary-hover: #0ea5e9;
+            --color-border: rgba(148, 163, 184, 0.3);
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --color-bg-base: #ffffff;
+                --color-bg-elevated: #f8fafc;
+                --color-bg-surface: #f1f5f9;
+                --color-bg-muted: #e2e8f0;
+                --color-text-primary: #0f172a;
+                --color-text-secondary: #475569;
+                --color-text-muted: #64748b;
+                --color-text-accent: #0284c7;
+                --color-primary: #0284c7;
+                --color-primary-hover: #0369a1;
+                --color-border: rgba(148, 163, 184, 0.4);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--color-bg-base);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+        }
+
+        header {
+            background: var(--color-bg-surface);
+            padding: 2rem 1rem;
+            text-align: center;
+            border-bottom: 1px solid var(--color-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-primary);
+        }
+
+        .tagline {
+            color: var(--color-text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .instagram-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--color-primary);
+            color: var(--color-bg-base);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .instagram-btn:hover {
+            background: var(--color-primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(56, 189, 248, 0.3);
+        }
+
+        .instagram-icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: var(--color-bg-surface);
+            color: var(--color-text-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            background: var(--color-bg-muted);
+            color: var(--color-text-primary);
+        }
+
+        .filter-btn.active {
+            background: var(--color-primary);
+            color: var(--color-bg-base);
+            border-color: var(--color-primary);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .product-card {
+            background: var(--color-bg-surface);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid var(--color-border);
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .product-image {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            background: var(--color-bg-muted);
+        }
+
+        .product-info {
+            padding: 1rem;
+        }
+
+        .product-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-primary);
+        }
+
+        .product-description {
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .product-category {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--color-bg-muted);
+            color: var(--color-text-accent);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--color-bg-surface);
+            border-radius: 16px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--color-bg-muted);
+            border: none;
+            color: var(--color-text-primary);
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--color-primary);
+            transform: rotate(90deg);
+        }
+
+        .modal-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+            background: var(--color-bg-base);
+        }
+
+        .modal-info {
+            padding: 2rem;
+        }
+
+        .modal-title {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            color: var(--color-text-primary);
+        }
+
+        .modal-description {
+            color: var(--color-text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .modal-btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: var(--color-bg-base);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-hover);
+            transform: translateY(-2px);
+        }
+
+        footer {
+            background: var(--color-bg-surface);
+            padding: 2rem 1rem;
+            text-align: center;
+            border-top: 1px solid var(--color-border);
+            margin-top: 3rem;
+        }
+
+        .footer-text {
+            color: var(--color-text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .social-link {
+            color: var(--color-text-accent);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .social-link:hover {
+            color: var(--color-primary-hover);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+
+            .modal {
+                padding: 1rem;
+            }
+
+            .modal-info {
+                padding: 1.5rem;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                min-width: 100%;
+            }
+        }
+    </style>
 </head>
-
 <body>
-<header>
-  <h1>Abra Card Tracker</h1>
-
-  <div class="row">
-    <button id="btnGoogle" class="primary">Sign in with Google</button>
-    <button id="btnApple">Sign in with Apple</button>
-    <button id="btnLogout" class="ghost" disabled>Sign out</button>
-
-    <span id="authPill" class="pill bad">Signed out</span>
-    <span id="stats" class="pill">Owned: 0 / 0</span>
-  </div>
-
-  <div class="divider"></div>
-
-  <div class="row">
-    <input id="q" placeholder="Search (set, variant, number…)" style="min-width:240px; flex:1;" />
-    <select id="sort">
-      <option value="dateAsc">Release date ↑</option>
-      <option value="dateDesc">Release date ↓</option>
-      <option value="setAsc">Set A→Z</option>
-      <option value="nameAsc">Name A→Z</option>
-    </select>
-    <select id="filterOwned">
-      <option value="all">All</option>
-      <option value="owned">Owned</option>
-      <option value="needed">Needed</option>
-    </select>
-    <span class="meta">Cards load from Firestore.</span>
-  </div>
-
-  <div class="divider"></div>
-
-  <details id="adminPanel">
-    <summary>Admin: add a card (requires admin claim)</summary>
-    <div class="formgrid">
-      <input id="f_id" placeholder="cardId (unique, e.g. sv151-063)" />
-      <input id="f_name" placeholder="name (Abra)" />
-      <input id="f_set" placeholder="set (e.g. Base Set)" />
-      <input id="f_number" placeholder="number (e.g. 43/102)" />
-      <input id="f_variant" placeholder="variant (e.g. 1st Ed)" />
-      <input id="f_release" placeholder="releaseDate (YYYY-MM-DD)" />
-      <input id="f_img" placeholder="imageUrl (optional)" />
-    </div>
-    <div class="row" style="margin-top:10px;">
-      <button id="btnAddCard">Add / Update card</button>
-      <button id="btnSeed">Seed starter Abra cards</button>
-      <span class="meta">Seeding is safe to run multiple times.</span>
-    </div>
-    <p class="hint">Tip: lock down /cards writes to admins using Security Rules + custom claims. [web:79]</p>
-    <div id="adminErr" class="err"></div>
-  </details>
-</header>
-
-<main>
-  <div id="loadState" class="meta">Loading…</div>
-  <div class="divider"></div>
-  <div id="grid" class="grid"></div>
-</main>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import {
-    getAuth, onAuthStateChanged, signInWithPopup,
-    GoogleAuthProvider, OAuthProvider, signOut
-  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-  import {
-    getFirestore,
-    collection, doc, setDoc,
-    onSnapshot, query, orderBy
-  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyDjtVO0yloDlqmSQhNeaI1sHt0XCe0gYPQ",
-    authDomain: "abra-collection-c63e6.firebaseapp.com",
-    projectId: "abra-collection-c63e6",
-    storageBucket: "abra-collection-c63e6.firebasestorage.app",
-    messagingSenderId: "205587224372",
-    appId: "1:205587224372:web:768e8689136fe246b4b761"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  const elGrid = document.querySelector("#grid");
-  const elQ = document.querySelector("#q");
-  const elSort = document.querySelector("#sort");
-  const elFilterOwned = document.querySelector("#filterOwned");
-  const elStats = document.querySelector("#stats");
-  const elAuthPill = document.querySelector("#authPill");
-  const elLoadState = document.querySelector("#loadState");
-  const adminPanel = document.querySelector("#adminPanel");
-  const adminErr = document.querySelector("#adminErr");
-
-  const btnGoogle = document.querySelector("#btnGoogle");
-  const btnApple = document.querySelector("#btnApple");
-  const btnLogout = document.querySelector("#btnLogout");
-
-  const btnAddCard = document.querySelector("#btnAddCard");
-  const btnSeed = document.querySelector("#btnSeed");
-
-  const f_id = document.querySelector("#f_id");
-  const f_name = document.querySelector("#f_name");
-  const f_set = document.querySelector("#f_set");
-  const f_number = document.querySelector("#f_number");
-  const f_variant = document.querySelector("#f_variant");
-  const f_release = document.querySelector("#f_release");
-  const f_img = document.querySelector("#f_img");
-
-  let currentUser = null;
-  let ownedMap = {};
-  let cards = []; // loaded from Firestore
-
-  let unsubOwned = null;
-  let unsubCards = null;
-
-  btnGoogle.addEventListener("click", async () => {
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
-  });
-
-  btnApple.addEventListener("click", async () => {
-    const provider = new OAuthProvider("apple.com");
-    await signInWithPopup(auth, provider);
-  });
-
-  btnLogout.addEventListener("click", async () => {
-    await signOut(auth);
-  });
-
-  function setAuthUi(signedIn) {
-    btnLogout.disabled = !signedIn;
-    btnGoogle.disabled = signedIn;
-    btnApple.disabled = signedIn;
-
-    elAuthPill.textContent = signedIn ? "Signed in" : "Signed out";
-    elAuthPill.classList.toggle("ok", signedIn);
-    elAuthPill.classList.toggle("bad", !signedIn);
-  }
-
-  function startCardsListener() {
-    if (unsubCards) unsubCards();
-
-    // Order by releaseDate in Firestore query [web:74]
-    const qCards = query(collection(db, "cards"), orderBy("releaseDate", "asc"));
-
-    unsubCards = onSnapshot(qCards, (snap) => {
-      cards = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      elLoadState.textContent = `Loaded ${cards.length} cards`;
-      render();
-    }, (err) => {
-      elLoadState.textContent = "Failed to load cards (check rules + indexes).";
-      console.error(err);
-    });
-  }
-
-  function startOwnedListener(uid) {
-    if (unsubOwned) unsubOwned();
-    const ref = doc(db, "users", uid, "state", "owned");
-
-    unsubOwned = onSnapshot(ref, (snap) => {
-      const data = snap.exists() ? snap.data() : {};
-      ownedMap = (data && data.owned) ? data.owned : {};
-      render();
-    });
-  }
-
-  async function setOwned(cardId, owned) {
-    if (!currentUser) return;
-    const ref = doc(db, "users", currentUser.uid, "state", "owned");
-    const next = { ...ownedMap, [cardId]: !!owned };
-    // setDoc merge used for updating documents [web:68]
-    await setDoc(ref, { owned: next }, { merge: true });
-  }
-
-  function computeVisibleCards() {
-    const q = elQ.value.trim().toLowerCase();
-    let list = cards.slice();
-
-    if (q) {
-      list = list.filter(c => {
-        const hay = `${c.name||""} ${c.set||""} ${c.number||""} ${c.variant||""}`.toLowerCase();
-        return hay.includes(q);
-      });
-    }
-
-    const ownedFilter = elFilterOwned.value;
-    if (ownedFilter === "owned") list = list.filter(c => !!ownedMap[c.id]);
-    if (ownedFilter === "needed") list = list.filter(c => !ownedMap[c.id]);
-
-    const sort = elSort.value;
-    list.sort((a,b) => {
-      const ad = (a.releaseDate || "");
-      const bd = (b.releaseDate || "");
-      if (sort === "dateAsc") return ad.localeCompare(bd) || (a.set||"").localeCompare(b.set||"");
-      if (sort === "dateDesc") return bd.localeCompare(ad) || (a.set||"").localeCompare(b.set||"");
-      if (sort === "setAsc") return (a.set||"").localeCompare(b.set||"") || (a.number||"").localeCompare(b.number||"");
-      if (sort === "nameAsc") return (a.name||"").localeCompare(b.name||"") || (a.set||"").localeCompare(b.set||"");
-      return 0;
-    });
-
-    return list;
-  }
-
-  function updateStats() {
-    const total = cards.length;
-    const owned = cards.reduce((n,c) => n + (ownedMap[c.id] ? 1 : 0), 0);
-    elStats.textContent = `Owned: ${owned} / ${total}`;
-  }
-
-  function cardThumb(card){
-    if (card.imageUrl) {
-      const safe = String(card.imageUrl).replaceAll('"','&quot;');
-      return `<img src="${safe}" alt="${card.name||"Card"}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" />`;
-    }
-    return `<div>${card.set||"Unknown set"}<br/>${card.number||""}</div>`;
-  }
-
-  function render() {
-    updateStats();
-    const visible = computeVisibleCards();
-
-    elGrid.innerHTML = visible.map(card => {
-      const isOwned = !!ownedMap[card.id];
-      return `
-        <div class="card" data-id="${card.id}">
-          <div class="thumb">${cardThumb(card)}</div>
-          <div class="info">
-            <p class="title">${card.name || card.id} <span class="meta">(${card.variant || "Variant"})</span></p>
-            <p class="sub">${card.set || "Unknown set"} • ${card.number || ""} • ${card.releaseDate || ""}</p>
-            <div class="actions">
-              <label class="tick" data-owned="${isOwned}" title="Toggle owned">
-                <span class="radio" aria-hidden="true"></span>
-                <span>${isOwned ? "Owned" : "Not owned"}</span>
-              </label>
-              <span class="meta">${currentUser ? "Synced" : "Sign in to sync"}</span>
-            </div>
-          </div>
+    <header>
+        <div class="header-content">
+            <h1>3D Print Creations</h1>
+            <p class="tagline">Custom 3D Printed Products &amp; Designs</p>
+            <a href="https://www.instagram.com/direct/t/YOUR_INSTAGRAM_USERNAME" target="_blank" rel="noopener noreferrer" class="instagram-btn">
+                <svg class="instagram-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4c0 3.2-2.6 5.8-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8C2 4.6 4.6 2 7.8 2m-.2 2C5.6 4 4 5.6 4 7.6v8.8C4 18.4 5.6 20 7.6 20h8.8c2 0 3.6-1.6 3.6-3.6V7.6C20 5.6 18.4 4 16.4 4H7.6m9.65 1.5c.7 0 1.25.56 1.25 1.25S17.95 8 17.25 8s-1.25-.56-1.25-1.25.56-1.25 1.25-1.25M12 7c2.76 0 5 2.24 5 5s-2.24 5-5 5-5-2.24-5-5 2.24-5 5-5m0 2c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                </svg>
+                Message Me on Instagram
+            </a>
         </div>
-      `;
-    }).join("");
+    </header>
 
-    elGrid.querySelectorAll(".card").forEach(node => {
-      const cardId = node.getAttribute("data-id");
-      node.querySelector(".tick").addEventListener("click", async () => {
-        if (!currentUser) { alert("Please sign in to save owned status."); return; }
-        await setOwned(cardId, !ownedMap[cardId]);
-      });
-    });
-  }
+    <div class="container">
+        <div class="filter-bar">
+            <button class="filter-btn active" data-category="all">All Products</button>
+            <button class="filter-btn" data-category="pokemon">Pokémon</button>
+            <button class="filter-btn" data-category="gaming">Gaming</button>
+            <button class="filter-btn" data-category="custom">Custom Designs</button>
+            <button class="filter-btn" data-category="functional">Functional Prints</button>
+        </div>
 
-  elQ.addEventListener("input", render);
-  elSort.addEventListener("change", render);
-  elFilterOwned.addEventListener("change", render);
+        <div class="product-grid" id="productGrid">
+            <!-- Products will be inserted here by JavaScript -->
+        </div>
+    </div>
 
-  // Admin helpers (writes to /cards; your rules should restrict this to admins) [web:79]
-  async function upsertCard(cardId, data) {
-    adminErr.textContent = "";
-    const ref = doc(db, "cards", cardId);
-    await setDoc(ref, data, { merge: true }); // set/update doc [web:68]
-  }
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <img class="modal-image" id="modalImage" src="" alt="">
+            <div class="modal-info">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <p class="modal-description" id="modalDescription"></p>
+                <div class="modal-actions">
+                    <a href="https://www.instagram.com/direct/t/YOUR_INSTAGRAM_USERNAME" target="_blank" rel="noopener noreferrer" class="modal-btn btn-primary">
+                        <svg style="width: 20px; height: 20px; display: inline; vertical-align: middle; margin-right: 0.5rem;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4c0 3.2-2.6 5.8-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8C2 4.6 4.6 2 7.8 2m-.2 2C5.6 4 4 5.6 4 7.6v8.8C4 18.4 5.6 20 7.6 20h8.8c2 0 3.6-1.6 3.6-3.6V7.6C20 5.6 18.4 4 16.4 4H7.6m9.65 1.5c.7 0 1.25.56 1.25 1.25S17.95 8 17.25 8s-1.25-.56-1.25-1.25.56-1.25 1.25-1.25M12 7c2.76 0 5 2.24 5 5s-2.24 5-5 5-5-2.24-5-5 2.24-5 5-5m0 2c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                        </svg>
+                        Order via Instagram DM
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  btnAddCard.addEventListener("click", async () => {
-    try{
-      const id = f_id.value.trim();
-      if (!id) throw new Error("cardId is required");
-      await upsertCard(id, {
-        name: f_name.value.trim() || "Abra",
-        set: f_set.value.trim(),
-        number: f_number.value.trim(),
-        variant: f_variant.value.trim(),
-        releaseDate: f_release.value.trim(),
-        imageUrl: f_img.value.trim()
-      });
-    } catch(e){
-      adminErr.textContent = String(e?.message || e);
-    }
-  });
+    <footer>
+        <p class="footer-text">Custom 3D Printed Creations | Made with Bambu Labs</p>
+        <div class="social-links">
+            <a href="https://www.instagram.com/YOUR_INSTAGRAM_USERNAME" target="_blank" rel="noopener noreferrer" class="social-link">Instagram</a>
+            <a href="https://www.pinterest.com/YOUR_PINTEREST_USERNAME" target="_blank" rel="noopener noreferrer" class="social-link">Pinterest</a>
+        </div>
+    </footer>
 
-  btnSeed.addEventListener("click", async () => {
-    try{
-      const seed = [
-        { id:"base-43-unlimited", name:"Abra", set:"Base Set", number:"43/102", releaseDate:"1999-01-09", variant:"Unlimited", imageUrl:"" },
-        { id:"base-43-shadowless", name:"Abra", set:"Base Set", number:"43/102", releaseDate:"1999-01-09", variant:"Shadowless", imageUrl:"" },
-        { id:"base-43-1sted", name:"Abra", set:"Base Set", number:"43/102", releaseDate:"1999-01-09", variant:"1st Edition", imageUrl:"" },
-        { id:"teamrocket-49", name:"Abra", set:"Team Rocket", number:"49/82", releaseDate:"2000-04-24", variant:"Unlimited", imageUrl:"" },
-        { id:"mcd-2011-4", name:"Abra", set:"McDonald's Collection 2011", number:"4/12", releaseDate:"2011-06-17", variant:"Promo", imageUrl:"" },
-        { id:"sv3pt5-151-063", name:"Abra", set:"Scarlet & Violet—151", number:"063/165", releaseDate:"2023-09-22", variant:"Regular", imageUrl:"" },
-        { id:"topps-tv-63", name:"Abra", set:"Topps TV Animation Edition", number:"#63", releaseDate:"1999-01-01", variant:"Topps", imageUrl:"" }
-      ];
-      for (const c of seed) {
-        await upsertCard(c.id, c);
-      }
-    } catch(e){
-      adminErr.textContent = String(e?.message || e);
-    }
-  });
+    <script>
+        // Sample product data - replace with your actual products
+        const products = [
+            {
+                id: 1,
+                title: 'Pikachu Figure',
+                description: 'High-quality 3D printed Pikachu figure with multi-color printing. Perfect for collectors and Pokémon fans. Available in multiple sizes.',
+                image: 'https://images.unsplash.com/photo-1613070683693-f31e6ab07620?w=600&h=600&fit=crop',
+                category: 'pokemon'
+            },
+            {
+                id: 2,
+                title: 'Custom Card Holder',
+                description: 'Professional card holder designed for trading card collectors. Holds up to 100 cards securely. Perfect for vendors and collectors.',
+                image: 'https://images.unsplash.com/photo-1565084888279-aca607ecce0c?w=600&h=600&fit=crop',
+                category: 'functional'
+            },
+            {
+                id: 3,
+                title: 'Gaming Controller Stand',
+                description: 'Ergonomic controller stand with cable management. Compatible with PlayStation, Xbox, and Nintendo Switch controllers.',
+                image: 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=600&h=600&fit=crop',
+                category: 'gaming'
+            },
+            {
+                id: 4,
+                title: 'Bulbasaur Planter',
+                description: 'Adorable Bulbasaur planter for small succulents or air plants. Drainage hole included. Great gift for plant lovers.',
+                image: 'https://images.unsplash.com/photo-1614524556203-4e5b97edc3e0?w=600&h=600&fit=crop',
+                category: 'pokemon'
+            },
+            {
+                id: 5,
+                title: 'Custom Logo Display',
+                description: 'Personalized logo or text display. Available in various colors and sizes. Perfect for businesses and events.',
+                image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&h=600&fit=crop',
+                category: 'custom'
+            },
+            {
+                id: 6,
+                title: 'Desk Organizer Set',
+                description: 'Complete desk organization solution with pen holder, phone stand, and cable management. Modular design.',
+                image: 'https://images.unsplash.com/photo-1589395937772-9c5c97c70ced?w=600&h=600&fit=crop',
+                category: 'functional'
+            },
+            {
+                id: 7,
+                title: 'Charizard Statue',
+                description: 'Detailed Charizard statue with articulated wings. Premium quality print with smooth finish. Limited edition design.',
+                image: 'https://images.unsplash.com/photo-1606503153255-59d7e166d1f3?w=600&h=600&fit=crop',
+                category: 'pokemon'
+            },
+            {
+                id: 8,
+                title: 'D20 Dice Tower',
+                description: 'Elegant dice tower for tabletop gaming. Features intricate Celtic patterns. Perfect for D&amp;D enthusiasts.',
+                image: 'https://images.unsplash.com/photo-1585504198199-20277593b94f?w=600&h=600&fit=crop',
+                category: 'gaming'
+            },
+            {
+                id: 9,
+                title: 'Custom Keychain',
+                description: 'Personalized keychain with your name, logo, or design. Durable and lightweight. Great for gifts or promotional items.',
+                image: 'https://images.unsplash.com/photo-1571781418606-70265b9cce90?w=600&h=600&fit=crop',
+                category: 'custom'
+            }
+        ];
 
-  onAuthStateChanged(auth, (user) => {
-    currentUser = user || null;
-    setAuthUi(!!currentUser);
+        const productGrid = document.getElementById('productGrid');
+        const modal = document.getElementById('productModal');
+        const modalClose = document.getElementById('modalClose');
+        const modalImage = document.getElementById('modalImage');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDescription = document.getElementById('modalDescription');
+        const filterButtons = document.querySelectorAll('.filter-btn');
 
-    if (unsubOwned) { unsubOwned(); unsubOwned = null; }
-    if (currentUser) startOwnedListener(currentUser.uid);
-    else ownedMap = {};
+        let currentCategory = 'all';
 
-    render();
-  });
+        function renderProducts(category = 'all') {
+            productGrid.innerHTML = '';
+            
+            const filteredProducts = category === 'all' 
+                ? products 
+                : products.filter(p => p.category === category);
 
-  // Start catalog listener immediately (public read).
-  startCardsListener();
+            filteredProducts.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <img class="product-image" src="${product.image}" alt="${product.title}" loading="lazy">
+                    <div class="product-info">
+                        <h3 class="product-title">${product.title}</h3>
+                        <p class="product-description">${product.description.substring(0, 60)}...</p>
+                        <span class="product-category">${product.category}</span>
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => openModal(product));
+                productGrid.appendChild(card);
+            });
+        }
 
-  render();
-</script>
+        function openModal(product) {
+            modalImage.src = product.image;
+            modalImage.alt = product.title;
+            modalTitle.textContent = product.title;
+            modalDescription.textContent = product.description;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        modalClose.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const category = btn.dataset.category;
+                currentCategory = category;
+                renderProducts(category);
+            });
+        });
+
+        // Initial render
+        renderProducts();
+    </script>
 </body>
 </html>
+
