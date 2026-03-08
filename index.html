@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Print Portfolio</title>
+    <title>Lieghio Trading</title>
     <style>
         :root {
             --color-bg-base: #0f172a;
@@ -357,9 +357,9 @@
 <body>
     <header>
         <div class="header-content">
-            <h1>3D Print Creations</h1>
-            <p class="tagline">Custom 3D Printed Products &amp; Designs</p>
-            <a href="https://www.instagram.com/direct/t/YOUR_INSTAGRAM_USERNAME" target="_blank" rel="noopener noreferrer" class="instagram-btn">
+            <h1>3D Print Canvases</h1>
+            <p class="tagline">Custom 3D Prints</p>
+            <a href="https://www.instagram.com/direct/t/lieghiotrading" target="_blank" rel="noopener noreferrer" class="instagram-btn">
                 <svg class="instagram-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4c0 3.2-2.6 5.8-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8C2 4.6 4.6 2 7.8 2m-.2 2C5.6 4 4 5.6 4 7.6v8.8C4 18.4 5.6 20 7.6 20h8.8c2 0 3.6-1.6 3.6-3.6V7.6C20 5.6 18.4 4 16.4 4H7.6m9.65 1.5c.7 0 1.25.56 1.25 1.25S17.95 8 17.25 8s-1.25-.56-1.25-1.25.56-1.25 1.25-1.25M12 7c2.76 0 5 2.24 5 5s-2.24 5-5 5-5-2.24-5-5 2.24-5 5-5m0 2c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
                 </svg>
@@ -372,9 +372,8 @@
         <div class="filter-bar">
             <button class="filter-btn active" data-category="all">All Products</button>
             <button class="filter-btn" data-category="pokemon">Pokémon</button>
-            <button class="filter-btn" data-category="gaming">Gaming</button>
-            <button class="filter-btn" data-category="custom">Custom Designs</button>
-            <button class="filter-btn" data-category="functional">Functional Prints</button>
+            <button class="filter-btn" data-category="gaming">Yu-Gi-Oh</button>
+            <button class="filter-btn" data-category="custom">TCG Accessories</button>
         </div>
 
         <div class="product-grid" id="productGrid">
@@ -402,10 +401,9 @@
     </div>
 
     <footer>
-        <p class="footer-text">Custom 3D Printed Creations | Made with Bambu Labs</p>
+        <p class="footer-text">Custom 3D Printed Canvases | Made with Bambu Labs P2S</p>
         <div class="social-links">
-            <a href="https://www.instagram.com/YOUR_INSTAGRAM_USERNAME" target="_blank" rel="noopener noreferrer" class="social-link">Instagram</a>
-            <a href="https://www.pinterest.com/YOUR_PINTEREST_USERNAME" target="_blank" rel="noopener noreferrer" class="social-link">Pinterest</a>
+            <a href="https://www.instagram.com/lieghiotrading" target="_blank" rel="noopener noreferrer" class="social-link">Instagram</a>
         </div>
     </footer>
 
@@ -414,66 +412,94 @@
         const products = [
             {
                 id: 1,
-                title: 'Pikachu Figure',
-                description: 'High-quality 3D printed Pikachu figure with multi-color printing. Perfect for collectors and Pokémon fans. Available in multiple sizes.',
-                image: 'https://images.unsplash.com/photo-1613070683693-f31e6ab07620?w=600&h=600&fit=crop',
+                title: 'Abra Space',
+                description: 'Medium',
+                image: '',
+                category: 'pokemon'
+            },
+           {
+                id: 2,
+                title: 'Charizard',
+                description: 'Large',
+                image: '',
                 category: 'pokemon'
             },
             {
-                id: 2,
-                title: 'Custom Card Holder',
-                description: 'Professional card holder designed for trading card collectors. Holds up to 100 cards securely. Perfect for vendors and collectors.',
-                image: 'https://images.unsplash.com/photo-1565084888279-aca607ecce0c?w=600&h=600&fit=crop',
-                category: 'functional'
-            },
-            {
                 id: 3,
-                title: 'Gaming Controller Stand',
-                description: 'Ergonomic controller stand with cable management. Compatible with PlayStation, Xbox, and Nintendo Switch controllers.',
-                image: 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=600&h=600&fit=crop',
-                category: 'gaming'
+                title: 'Clefairy Garden',
+                description: 'Medium',
+                image: '',
+                category: 'pokemon'
             },
             {
                 id: 4,
-                title: 'Bulbasaur Planter',
-                description: 'Adorable Bulbasaur planter for small succulents or air plants. Drainage hole included. Great gift for plant lovers.',
-                image: 'https://images.unsplash.com/photo-1614524556203-4e5b97edc3e0?w=600&h=600&fit=crop',
+                title: 'Coro Coro Mew',
+                description: 'Medium',
+                image: '',
                 category: 'pokemon'
             },
             {
                 id: 5,
-                title: 'Custom Logo Display',
-                description: 'Personalized logo or text display. Available in various colors and sizes. Perfect for businesses and events.',
-                image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&h=600&fit=crop',
-                category: 'custom'
+                title: 'Lugia Sea',
+                description: 'Medium',
+                image: '',
+                category: 'pokemon'
             },
             {
                 id: 6,
-                title: 'Desk Organizer Set',
-                description: 'Complete desk organization solution with pen holder, phone stand, and cable management. Modular design.',
-                image: 'https://images.unsplash.com/photo-1589395937772-9c5c97c70ced?w=600&h=600&fit=crop',
-                category: 'functional'
+                title: 'Mimikyu Halloween',
+                description: 'Large',
+                image: '',
+                category: 'pokemon'
             },
             {
                 id: 7,
-                title: 'Charizard Statue',
-                description: 'Detailed Charizard statue with articulated wings. Premium quality print with smooth finish. Limited edition design.',
-                image: 'https://images.unsplash.com/photo-1606503153255-59d7e166d1f3?w=600&h=600&fit=crop',
+                title: 'Sylveon Forrest',
+                description: 'Medium',
+                image: '',
                 category: 'pokemon'
             },
             {
                 id: 8,
-                title: 'D20 Dice Tower',
-                description: 'Elegant dice tower for tabletop gaming. Features intricate Celtic patterns. Perfect for D&amp;D enthusiasts.',
-                image: 'https://images.unsplash.com/photo-1585504198199-20277593b94f?w=600&h=600&fit=crop',
-                category: 'gaming'
+                title: 'Tyranitar & Larvitar Volcano',
+                description: 'Medium',
+                image: '',
+                category: 'pokemon'
             },
             {
                 id: 9,
-                title: 'Custom Keychain',
-                description: 'Personalized keychain with your name, logo, or design. Durable and lightweight. Great for gifts or promotional items.',
-                image: 'https://images.unsplash.com/photo-1571781418606-70265b9cce90?w=600&h=600&fit=crop',
-                category: 'custom'
+                title: 'Umbreon Starry Night',
+                description: 'Large',
+                image: '',
+                category: 'pokemon'
+            },
+            {
+                id: 10,
+                title: 'Zorua Moonlight',
+                description: 'Medium',
+                image: '',
+                category: 'pokemon'
+            },
+            {
+                id: 11,
+                title: 'Blue-Eyes White Dragon',
+                description: 'XLarge',
+                image: '',
+                category: 'yu-gi-oh'
+            },
+            {
+                id: 12,
+                title: 'Red-Eyes Black Dragon',
+                description: 'XLarge',
+                image: '',
+                category: 'yu-gi-oh'
+            },
+            {
+                id: 13,
+                title: 'Dark Magician',
+                description: 'XLarge',
+                image: '',
+                category: 'yu-gi-oh'
             }
         ];
 
